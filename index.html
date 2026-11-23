@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ruang Aneh Shorts Studio</title>
+<style>
+:root{--bg:#080b12;--panel:#111827;--line:#263247;--muted:#94a3b8;--blue:#3b82f6;--white:#f8fafc}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 80% 0%,#172554 0,transparent 35%),var(--bg);color:var(--white);font:15px Inter,system-ui,Arial}
+.wrap{max-width:1180px;margin:auto;padding:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:22px}.brand{font-weight:900;letter-spacing:.08em}.brand span{color:#60a5fa}.tag{color:#93c5fd;border:1px solid #29466f;padding:7px 11px;border-radius:99px;font-size:12px}
+h1{font-size:clamp(26px,4vw,42px);margin:10px 0}p{color:var(--muted);line-height:1.6}.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.panel{background:linear-gradient(160deg,#121b2b,#0d1421);border:1px solid var(--line);border-radius:18px;padding:18px;min-width:0}.panel h2{font-size:17px;margin:0 0 14px}.field{display:grid;gap:7px;margin:13px 0}label{font-size:13px;color:#cbd5e1}input,textarea,select{width:100%;background:#080f1d;border:1px solid #334155;color:white;border-radius:10px;padding:12px;font:inherit}textarea{min-height:125px;resize:vertical}button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:750;cursor:pointer}button.secondary{background:#263449}button:disabled{opacity:.5;cursor:not-allowed}.row{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.hint{font-size:12px;color:#94a3b8}.scene{border:1px solid #2b3b52;border-radius:12px;padding:12px;margin:10px 0;background:#0a1220}.scenehead{display:flex;justify-content:space-between;align-items:center;gap:8px}.scene strong{font-size:14px}.scene textarea{min-height:70px;margin-top:9px}.scene input{margin-top:8px}.preview{display:grid;place-items:center;background:#05070b;border:1px solid #334155;border-radius:14px;padding:12px}.screen{width:min(100%,300px);aspect-ratio:9/16;background:#101827;position:relative;overflow:hidden;border-radius:8px;display:grid;place-items:center}.screen canvas{width:100%;height:100%;object-fit:contain}.status{font-size:12px;color:#93c5fd;min-height:18px;margin-top:9px}.meter{height:6px;background:#263449;border-radius:99px;overflow:hidden;margin-top:8px}.meter div{height:100%;width:0;background:#60a5fa}.footer{margin-top:20px;color:#64748b;font-size:12px;text-align:center}.danger{color:#fbbf24}.sceneimg{font-size:12px;color:#94a3b8} @media(max-width:800px){.layout{grid-template-columns:1fr}.wrap{padding:14px}.top{align-items:flex-start}}
+</style></head>
+<body><div class="wrap">
+<header class="top"><div class="brand">RUANG <span>ANEH</span> / STUDIO</div><div class="tag">FREE EDITION · BROWSER-BASED</div></header>
+<h1>Bikin Shorts dari cerita.</h1><p>Tulis cerita, pecah otomatis jadi scene, masukkan gambar, lalu buat video vertikal dengan gerakan kamera, teks, dan transisi sederhana.</p>
+<div class="layout">
+<section class="panel">
+<h2>01 · Cerita dan pengaturan</h2>
+<div class="field"><label for="title">Judul Shorts</label><input id="title" value="Ada Seseorang yang Mengikuti dari Belakang"></div>
+<div class="field"><label for="story">Naskah cerita</label><textarea id="story" placeholder="Tempel cerita kamu di sini...">Setiap malam, ada sesuatu yang selalu mengikuti pria ini.
+Awalnya dia mengira hanya suara angin.
+Namun setiap kali dia berhenti, langkah kaki itu juga berhenti.
+Malam ini, dia memberanikan diri untuk menoleh.
+Dan sosok itu ternyata berdiri tepat di belakangnya.</textarea></div>
+<div class="row"><div class="field" style="flex:1"><label for="duration">Durasi tiap scene</label><select id="duration"><option>4</option><option selected>6</option><option>8</option><option>10</option><option>12</option></select></div><div class="field" style="flex:1"><label for="motion">Gerakan</label><select id="motion"><option value="zoom">Slow zoom</option><option value="pan">Pan pelan</option><option value="mix" selected>Campuran</option></select></div></div>
+<div class="row"><button id="split">Buat storyboard otomatis</button><button class="secondary" id="demo">Isi contoh cerita</button></div>
+<p class="hint">Pemisahan scene berdasarkan kalimat. Ini bukan AI generatif; hasilnya bisa kamu edit sendiri.</p>
+</section>
+<section class="panel">
+<h2>02 · Preview dan ekspor</h2>
+<div class="preview"><div class="screen"><canvas id="canvas" width="720" height="1280"></canvas></div></div>
+<div class="row" style="margin-top:12px"><button id="previewBtn" class="secondary">Preview video</button><button id="exportBtn">Ekspor video WebM</button></div>
+<div class="meter"><div id="progress"></div></div><div class="status" id="status">Siap. Buat storyboard terlebih dahulu.</div>
+<p class="hint">Ekspor direkam langsung di browser. Format WebM dapat diedit/diubah ke MP4 melalui CapCut. Gunakan Chrome desktop atau Android terbaru untuk hasil terbaik.</p>
+</section>
+</div>
+<section class="panel" style="margin-top:18px"><h2>03 · Storyboard dan gambar</h2><div class="hint">Tambahkan gambar untuk setiap scene. Disarankan gambar vertikal atau gambar dengan resolusi tinggi.</div><div id="scenes"></div></section>
+<div class="footer">Ruang Aneh Shorts Studio · Tidak mengunggah gambar atau cerita ke server. Semua proses dilakukan di browser.</div>
+</div>
+<script>
+const $=id=>document.getElementById(id);let scenes=[],images=[],playing=false;
+const sample=["Setiap malam, ada sesuatu yang selalu mengikuti pria ini.","Awalnya dia mengira hanya suara angin.","Namun setiap kali dia berhenti, langkah kaki itu juga berhenti.","Malam ini, dia memberanikan diri untuk menoleh.","Dan sosok itu ternyata berdiri tepat di belakangnya."];
+function splitStory(){let raw=$('story').value.trim();let parts=raw.split(/(?<=[.!?])\s+|\n+/).map(x=>x.trim()).filter(Boolean);if(!parts.length)return;scenes=parts.map((text,i)=>({text,duration:+$('duration').value}));images=scenes.map(()=>null);renderScenes();$('status').textContent=`${scenes.length} scene berhasil dibuat. Tambahkan gambar di setiap scene.`;drawFrame(0,0)}
+function renderScenes(){ $('scenes').innerHTML='';scenes.forEach((s,i)=>{let d=document.createElement('div');d.className='scene';d.innerHTML=`<div class="scenehead"><strong>SCENE ${i+1} · ${s.duration} DETIK</strong><span class="sceneimg" id="imglabel${i}">${images[i]?'Gambar siap':'Belum ada gambar'}</span></div><textarea aria-label="Naskah scene ${i+1}"></textarea><input type="file" accept="image/*" aria-label="Upload gambar scene ${i+1}">`;let ta=d.querySelector('textarea');ta.value=s.text;ta.addEventListener('input',()=>s.text=ta.value);let fi=d.querySelector('input');fi.addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let im=new Image();im.onload=()=>{images[i]=im;$('imglabel'+i).textContent='Gambar siap';};im.src=URL.createObjectURL(f)});$('scenes').appendChild(d)})}
+function drawFrame(index,t){let c=$('canvas'),ctx=c.getContext('2d'),w=c.width,h=c.height,s=scenes[index];ctx.fillStyle='#080d18';ctx.fillRect(0,0,w,h);if(!s){ctx.fillStyle='white';ctx.font='bold 48px Arial';ctx.textAlign='center';ctx.fillText('RUANG ANEH',w/2,h/2);return}
+let im=images[index];if(im){let scale=Math.max(w/im.width,h/im.height)*(1+0.08*t),iw=im.width*scale,ih=im.height*scale;let motion=$('motion').value;let dx=motion==='pan'?Math.sin(t*2)*25:0;ctx.save();ctx.translate(w/2+dx,h/2);ctx.scale(1+0.025*t,1+0.025*t);ctx.drawImage(im,-iw/2,-ih/2,iw,ih);ctx.restore();}else{let g=ctx.createLinearGradient(0,0,w,h);g.addColorStop(0,'#172554');g.addColorStop(1,'#05070c');ctx.fillStyle=g;ctx.fillRect(0,0,w,h);for(let k=0;k<30;k++){ctx.fillStyle=`rgba(190,210,255,${Math.random()*.035})`;ctx.beginPath();ctx.arc((k*97)%w,(k*173)%h,80,0,7);ctx.fill()}}
+let shade=ctx.createLinearGradient(0,h*.55,0,h);shade.addColorStop(0,'rgba(0,0,0,0)');shade.addColorStop(1,'rgba(0,0,0,.88)');ctx.fillStyle=shade;ctx.fillRect(0,0,w,h);ctx.textAlign='center';ctx.fillStyle='white';ctx.shadowColor='black';ctx.shadowBlur=12;ctx.font='bold 46px Arial';let words=s.text.split(' '),lines=[],line='';for(let word of words){let test=line?line+' '+word:word;if(ctx.measureText(test).width>w-90){lines.push(line);line=word}else line=test}if(line)lines.push(line);let start=h*.76-(lines.length-1)*30;lines.forEach((l,j)=>ctx.fillText(l,w/2,start+j*62));ctx.shadowBlur=0;ctx.fillStyle='#93c5fd';ctx.font='bold 25px Arial';ctx.fillText('RUANG ANEH',w/2,90)}
+function wait(ms){return new Promise(r=>setTimeout(r,ms))}
+async function play(record=false){if(!scenes.length){$('status').textContent='Buat storyboard dulu.';return}if(playing)return;playing=true;let c=$('canvas'),fps=24,stream=c.captureStream(fps),rec=null,chunks=[];if(record){let mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')?'video/webm;codecs=vp9':'video/webm';try{rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:5000000})}catch(e){$('status').textContent='Browser tidak mendukung perekaman video.';playing=false;return}rec.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};rec.onstop=()=>{let blob=new Blob(chunks,{type:'video/webm'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ruang-aneh-shorts.webm';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);$('status').textContent='Selesai! Video WebM berhasil diunduh.';$('progress').style.width='100%'};rec.start()}
+let total=scenes.reduce((a,s)=>a+s.duration,0),elapsed=0;$('status').textContent=record?'Sedang merekam video... jangan tutup halaman.':'Memutar preview...';
+for(let i=0;i<scenes.length;i++){let dur=scenes[i].duration*1000,steps=Math.ceil(dur/100);for(let j=0;j<=steps;j++){drawFrame(i,j/steps);$('progress').style.width=((elapsed+j/steps*scenes[i].duration)/total*100)+'%';await wait(100)}elapsed+=scenes[i].duration}
+if(rec){rec.stop();stream.getTracks().forEach(t=>t.stop())}else{$('status').textContent='Preview selesai.';$('progress').style.width='0%'}playing=false}
+$('split').onclick=splitStory;$('demo').onclick=()=>{$('story').value=sample.join('\n');splitStory()};$('previewBtn').onclick=()=>play(false);$('exportBtn').onclick=()=>play(true);drawFrame(0,0);
+</script></body></html>
